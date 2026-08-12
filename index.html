@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prime Wallet Bank - USA</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        :root {
+            --prime-blue: #0047AB; --prime-dark: #002D6D; --prime-gold: #FFB900;
+            --light-gray: #F5F7FA; --border-gray: #E0E0E0;
+            --success: #2E7D32; --danger: #C62828; --warning: #F57C00;
+        }
+        body { background: var(--light-gray); min-height: 100vh; }
+        header {
+            background: linear-gradient(135deg, var(--prime-blue), var(--prime-dark));
+            color: white; padding: 16px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15); position: sticky; top:0; z-index:50;
+        }
+        .logo { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+        .nav-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 500; }
+        .nav-btn:hover { background: white; color: var(--prime-blue); }
+        .container { max-width: 520px; margin: 24px auto; padding: 0 16px; }
+        .form-card {
+            background: white; border-radius: 16px; padding: 28px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+        .form-title { font-size: 22px; font-weight: bold; color: var(--prime-dark); margin-bottom: 6px; text-align: center; }
+        .form-subtitle { font-size: 15px; color: #666; margin-bottom: 28px; text-align: center; }
+        .step-wrap { display: flex; justify-content: space-between; margin-bottom: 28px; }
+        .step { flex:1; text-align:center; font-size:13px; color:#999; }
+        .step-num {
+            display:inline-flex; align-items:center; justify-content:center;
+            width:32px; height:32px; border-radius:50%; background:#eee; color:#666;
+            margin-bottom:4px; font-weight:bold;
+        }
+        .step.active .step-num { background:var(--prime-blue); color:white; }
+        .step.completed .step-num { background:var(--success); color:white; }
+        .step.active { color:var(--prime-blue); font-weight:bold; }
+        .section-label { font-size: 16px; font-weight: bold; color: var(--prime-blue); margin: 24px 0 12px; display:flex; align-items:center; gap:6px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; color: #333; }
+        label span { color: #999; font-weight: normal; font-size: 13px; }
+        input, select, textarea {
+            width: 100%; padding: 13px 15px;
+            border: 2px solid var(--border-gray); border-radius: 10px;
+            font-size: 15px; transition: 0.2s;
+        }
+        input:focus, select:focus { outline: none; border-color: var(--prime-blue); }
+        .error-text { font-size: 13px; color: var(--danger); margin-top: 4px; display: none; }
+        .btn {
+            width: 100%; padding: 15px; border: none;
+            border-radius: 10px; font-size: 16px; font-weight: bold;
+            cursor: pointer; transition: 0.2s; margin-top: 8px;
+        }
+        .btn-primary { background: var(--prime-blue); color: white; }
+        .btn-primary:hover { background: var(--prime-dark); }
+        .btn-outline { background: white; border: 2px solid var(--prime-blue); color: var(--prime-blue); }
+        .btn-row { display:flex; gap:12px; margin-top:20px; }
+        .btn-row button { flex:1; }
+        .hidden { display:none !important; }
+        .pending-box {
+            background: #FFF8E1; border-left: 4px solid var(--warning);
+            padding: 20px; border-radius: 10px; margin-top: 20px; text-align:center;
+        }
+        .success-box {
+            background: #E8F5E9; border-left: 4px solid var(--success);
+            padding: 20px; border-radius: 10px; margin-top: 20px; text-align:center;
+        }
+        .login-form { margin-top:30px; }
+        .divider { text-align:center; margin:24px 0; color:#999; font-size:14px; }
+        .link-text { text-align:center; margin-top:16px; font-size:14px; }
+        .link-text a { color:var(--prime-blue); font-weight:bold; cursor:pointer; }
+        .review-box {
+            background: #f8fafc; border-radius: 10px; padding: 20px; margin: 16px 0;
+            border-left: 4px solid var(--prime-blue);
+        }
+        .review-row { margin-bottom: 10px; font-size: 14px; }
+        .review-label { font-weight: 600; color: var(--prime-dark); display: inline-block; width: 140px; }
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--prime-blue), var(--prime-dark));
+            color: white; padding: 24px; border-radius: 12px; margin-bottom: 20px;
+        }
+        .welcome-text { font-size: 22px; font-weight: bold; margin-bottom: 8px; }
+        .date-time { font-size: 14px; opacity: 0.9; margin-bottom: 16px; }
+        .balance-display { font-size: 36px; font-weight: bold; margin: 16px 0; }
+        .account-details {
+            background: white; border-radius: 10px; padding: 18px; margin: 16px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .account-details h4 { color: var(--prime-dark); margin-bottom: 12px; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px; }
+        .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+        .action-btn {
+            background: white; border: none; padding: 16px; border-radius: 10px;
+            text-align: center; font-size: 14px; font-weight: 500; color: var(--prime-dark);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            cursor: pointer; transition: 0.2s;
+        }
+        .action-btn:hover { background: #f0f6fc; transform: translateY(-2px); }
+        .locked-notice {
+            background: #fff3cd; border-left: 4px solid #ffc107; padding: 16px;
+            border-radius: 8px; margin: 16px 0; text-align: center; font-weight: 500;
+        }
+        .card-option {
+            border: 2px solid #eee; border-radius: 16px; padding: 24px; text-align: center;
+            margin-bottom: 20px; cursor: pointer; transition: 0.2s; background: white;
+        }
+        .card-option.selected { border-color: var(--prime-blue); background: #f0f6fc; box-shadow: 0 4px 12px rgba(0,71,171,0.15); }
+        .card-design {
+            width: 100%; max-width: 280px; height: 170px; margin: 0 auto 16px;
+            border-radius: 12px; padding: 20px; position: relative;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .card-design.visa { background: linear-gradient(135deg, #1a5fcc, #003380); color: white; }
+        .card-design.verve { background: linear-gradient(135deg, #009b3a, #006625); color: white; }
+        .card-design.master { background: linear-gradient(135deg, #ff9900, #cc7a00); color: white; }
+        .card-brand { font-size: 20px; font-weight: bold; text-align: right; }
+        .card-number { font-size: 18px; letter-spacing: 2px; margin: 30px 0; }
+        .card-holder { font-size: 14px; }
+        .card-expiry { font-size: 12px; text-align: right; }
+        .card-price { font-size: 24px; font-weight: bold; color: var(--prime-dark); margin: 12px 0; }
+        .payment-form {
+            background: white; border-radius: 12px; padding: 24px; margin-top: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+        .image-preview-box {
+            border: 2px dashed #ccc; border-radius: 8px; padding: 16px; text-align: center;
+            margin: 8px 0; cursor: pointer; color: #666;
+        }
+        .image-preview-box img { max-width: 100%; max-height: 100px; border-radius: 4px; margin-top: 8px; }
+        .review-message {
+            background: #e3f2fd; border-left: 4px solid #2196f3; padding: 20px; border-radius: 8px;
+            text-align: center; margin: 20px 0; font-weight: 500;
+        }
+        .transfer-form {
+            background: white; border-radius: 12px; padding: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            margin-top: 20px;
+        }
+        .recipient-name {
+            background: #e8f5e9; color: #2e7d32; padding: 12px; border-radius: 8px;
+            margin: 12px 0; font-weight: 500; display: none;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo"><span>🏦</span> Prime Wallet Bank - USA</div>
+    <button class="nav-btn" id="loginToggle" onclick="showLogin()">Sign In</button>
+</header>
+<div class="container">
+    <div id="registerSection">
+        <div class="form-card">
+            <h1 class="form-title">🔐 Create Your Account</h1>
+            <p class="form-subtitle">Secure Registration — All Fields Required</p>
+            <div class="step-wrap">
+                <div class="step active" id="s1-ind"><div class="step-num">1</div>Personal Info</div>
+                <div class="step" id="s2-ind"><div class="step-num">2</div>Verification</div>
+                <div class="step" id="s3-ind"><div class="step-num">3</div>Review & Submit</div>
+            </div>
+            <div id="step1">
+                <div class="section-label">🔹 Personal Details</div>
+                <div class="form-group">
+                    <label>Full Name (First & Last Name) *</label>
+                    <input type="text" id="fullName" placeholder="e.g. John Michael Morgan">
+                </div>
+                <div class="form-group">
+                    <label>Email Address *</label>
+                    <input type="email" id="email" placeholder="yourname@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number *</label>
+                    <input type="tel" id="phone" placeholder="+234 800 000 0000">
+                </div>
+                <div class="form-group">
+                    <label>Date of Birth *</label>
+                    <input type="date" id="dob">
+                </div>
+                <div class="form-group">
+                    <label>Government Issued ID Type *</label>
+                    <select id="idType">
+                        <option value="">— Select ID Type —</option>
+                        <option value="National ID Card">🪪 National ID Card</option>
+                        <option value="Driver's License">🚗 Driver's License</option>
+                        <option value="International Passport">✈️ International Passport</option>
+                        <option value="Voter's Card">🗳️ Voter's Card</option>
+                        <option value="Social Security Card">🖊️ Social Security Card</option>
+                        <option value="Permanent Resident Card">📇 Permanent Resident Card</option>
+                        <option value="Tax Identification Card">📋 Tax Identification Card</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>ID Number *</label>
+                    <input type="text" id="idNumber" placeholder="Enter ID number">
+                </div>
+                <div class="form-group">
+                    <label>ID Issue Date *</label>
+                    <input type="date" id="idIssue">
+                </div>
+                <div class="form-group">
+                    <label>ID Expiry Date *</label>
+                    <input type="date" id="idExpiry">
+                </div>
+                <!-- UPDATED: BOTH FRONT + BACK ID UPLOAD -->
+                <div class="form-group">
+                    <label>Upload FRONT of ID *</label>
+                    <input type="file" id="idFrontFile" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label>Upload BACK of ID *</label>
+                    <input type="file" id="idBackFile" accept="image/*">
+                </div>
+                <!-- END UPDATE -->
+                <div class="form-group">
+                    <label>Country of Residence *</label>
+                    <select id="country" onchange="loadStates()">
+                        <option value="">— Select Country —</option>
+                        <option value="United States">United States</option>
+                        <option value="Nigeria">Nigeria</option>
+                        <option value="United Kingdom">United Kingdom</option>
+                        <option value="Canada">Canada</option>
+                        <option value="Australia">Australia</option>
+                        <option value="Germany">Germany</option>
+                        <option value="France">France</option>
+                        <option value="South Africa">South Africa</option>
+                        <option value="India">India</option>
+                        <option value="United Arab Emirates">United Arab Emirates</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>State / Province / Region *</label>
+                    <select id="state">
+                        <option value="">— Select State/Region —</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>City / Town *</label>
+                    <input type="text" id="city" placeholder="Enter your city or town">
+                </div>
+                <div class="form-group">
+                    <label>Full Residential Address *</label>
+                    <textarea id="address" rows="3" placeholder="House number, street, landmark"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="goStep2()">Continue →</button>
+            </div>
+            <div id="step2" class="hidden">
+                <div class="section-label">🔹 Security & Verification</div>
+                <div class="form-group">
+                    <label>Create Password *</label>
+                    <input type="password" id="password" placeholder="At least 8 characters">
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password *</label>
+                    <input type="password" id="confirmPass" placeholder="Re-enter password">
+                </div>
+                <div class="form-group">
+                    <label>Email Verification Code *</label>
+                    <input type="text" id="emailCode" placeholder="Enter code sent to your email">
+                </div>
+                <div class="form-group">
+                    <label>Phone SMS Verification Code *</label>
+                    <input type="text" id="smsCode" placeholder="Enter code sent via SMS">
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-outline" onclick="goStep1()">← Back</button>
+                    <button class="btn btn-primary" onclick="goStep3()">Review & Submit →</button>
+                </div>
+            </div>
+            <div id="step3" class="hidden">
+                <div class="section-label">📋 Review Your Information</div>
+                <div class="review-box">
+                    <div class="review-row"><span class="review-label">Full Name:</span> <span id="revName"></span></div>
+                    <div class="review-row"><span class="review-label">Email:</span> <span id="revEmail"></span></div>
+                    <div class="review-row"><span class="review-label">Phone:</span> <span id="revPhone"></span></div>
+                    <div class="review-row"><span class="review-label">Date of Birth:</span> <span id="revDob"></span></div>
+                    <div class="review-row"><span class="review-label">ID Type:</span> <span id="revIdType"></span></div>
+                    <div class="review-row"><span class="review-label">ID Number:</span> <span id="revIdNumber"></span></div>
+                    <div class="review-row"><span class="review-label">ID Issue:</span> <span id="revIdIssue"></span></div>
+                    <div class="review-row"><span class="review-label">ID Expiry:</span> <span id="revIdExpiry"></span></div>
+                    <div class="review-row"><span class="review-label">Country:</span> <span id="revCountry"></span></div>
+                    <div class="review-row"><span class="review-label">State:</span> <span id="revState"></span></div>
+                    <div class="review-row"><span class="review-label">City:</span> <span id="revCity"></span></div>
+                    <div class="review-row"><span class="review-label">Address:</span> <span id="revAddress"></span></div>
+                    <div class="review-row"><span class="review-label">ID Uploaded:</span> <span>✅ Front + Back images received</span></div>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-outline" onclick="goStep2()">← Back to Edit</button>
+                    <button class="btn btn-primary" onclick="submitReg()">✅ Submit Registration</button>
+                </div>
+            </div>
+            <div id="successScreen" class="hidden">
+                <div class="success-box">
+                    <h2>✅ Registration Submitted!</h2>
+                </div>
+                <div class="pending-box">
+                    <strong>⏳ Status: PENDING ADMIN APPROVAL</strong><br><br>
+                    Your details have been received and sent for verification.<br><br>
+                    ✅ You will be notified by email/SMS once approved.<br>
+                    ✅ Once approved, you can Sign In to your account.
+                </div>
+                <button class="btn btn-primary" style="margin-top:24px;" onclick="showLogin()">Go to Sign In →</button>
+            </div>
+        </div>
+    </div>
+    <div id="loginSection" class="hidden">
+        <div class="form-card login-form">
+            <h2 class="form-title">🔐 Sign In</h2>
+            <p class="form-subtitle">Sign in to your Prime Wallet Bank account</p>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="loginEmail" placeholder="your@email.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter your password">
+            </div>
+            <button class="btn btn-primary" onclick="doLogin()">Sign In</button>
+            <div id="loginErr" class="error-text" style="text-align:center; margin-top:12px;">Enter your registered email & password</div>
+            <div class="link-text">
+                Don't have an account? <a onclick="showRegister()">Create Account</a>
+            </div>
+            <div id="dashboardView" class="hidden">
+                <div class="dashboard-header">
+                    <div class="welcome-text">Welcome, <span id="userFullName"></span> 👋</div>
+                    <div class="date-time" id="currentDateTime"></div>
+                    <div class="balance-display">$0.00</div>
+                    <div>Available Balance</div>
+                </div>
+                <div class="account-details">
+                    <h4>📋 Account Details</h4>
+                    <div class="detail-grid">
+                        <div><strong>Account Number:</strong> <span id="accNumber"></span></div>
+                        <div><strong>Routing/Sort Code:</strong> <span id="routing"></span></div>
+                        <div><strong>SWIFT/BIC:</strong> <span id="swift"></span></div>
+                        <div><strong>Account Type:</strong> <span>Personal Savings Account</span></div>
+                        <div><strong>Currency:</strong> <span>USD ($)</span></div>
+                        <div><strong>Status:</strong> <span style="color:var(--success); font-weight:bold;">✅ Active</span></div>
+                    </div>
+                </div>
+                <div id="cardRequiredNotice">
+                    <div class="locked-notice">
+                        🔒 <strong>Card Required:</strong> You must purchase a Prime Wallet ATM card before you can make transfers or perform any transactions.
+                    </div>
+                </div>
+                <div class="quick-actions">
+                    <button class="action-btn" onclick="showTransfer()" id="transferBtn" style="opacity:0.5; cursor:not-allowed;" disabled>💸<br>Send Money</button>
+                    <button class="action-btn" onclick="showCardPurchase()">💳<br>Buy ATM Card</button>
+                    <button class="action-btn" style="opacity:0.5; cursor:not-allowed;" disabled>📥<br>Deposit Funds</button>
+                    <button class="action-btn" style="opacity:0.5; cursor:not-allowed;" disabled>📄<br>Statements</button>
+                </div>
+                <div id="cardPurchaseSection" class="hidden">
+                    <div class="form-card">
+                        <h2 class="form-title">💳 Purchase Your Prime Wallet ATM Card</h2>
+                        <p class="form-subtitle">Choose your preferred card — your name will be printed on the card</p>
+                        
+                        <div class="card-option" onclick="selectCard('visa', 'Visa Card', 25.00)">
+                            <div class="card-design visa">
+                                <div class="card-brand">VISA</div>
+                                <div class="card-number">**** **** **** 1234</div>
+                                <div class="card-holder" id="visaHolderName"></div>
+                                <div class="card-expiry">**/**</div>
+                            </div>
+                            <h3>Prime Wallet Visa Card</h3>
+                            <div class="card-price">$25.00</div>
+                            <p>Global acceptance • Highest spending limit</p>
+                        </div>
+                        
+                        <div class="card-option" onclick="selectCard('verve', 'Verve Card', 18.50)">
+                            <div class="card-design verve">
+                                <div class="card-brand">VERVE</div>
+                                <div class="card-number">**** **** **** 5678</div>
+                                <div class="card-holder" id="verveHolderName"></div>
+                                <div class="card-expiry">**/**</div>
+                            </div>
+                            <h3>Prime Wallet Verve Card</h3>
+                            <div class="card-price">$18.50</div>
+                            <p>Local & International use • Low cost</p>
+                        </div>
+                        
+                        <div class="card-option" onclick="selectCard('master', 'MasterCard', 32.00)">
+                            <div class="card-design master">
+                                <div class="card-brand">MASTERCARD</div>
+                                <div class="card-number">**** **** **** 9012</div>
+                                <div class="card-holder" id="masterHolderName"></div>
+                                <div class="card-expiry">**/**</div>
+                            </div>
+                            <h3>Prime Wallet MasterCard</h3>
+                            <div class="card-price">$32.00</div>
+                            <p>Worldwide acceptance • Premium benefits</p>
+                        </div>
+
+                        <div id="paymentSection" class="hidden">
+                            <div class="payment-form">
+                                <h3 class="section-label">🔒 Payment Details — Pay with Your ATM Card</h3>
+                                <p style="text-align:center; color:#666; margin-bottom:20px;">Upload your ATM card details to complete purchase — your information is securely encrypted</p>
+                                
+                                <div class="form-group">
+                                    <label>Cardholder Full Name (as it appears on card) *</label>
+                                    <input type="text" id="payCardName" placeholder="Name on your ATM card">
+                                </div>
+                                <div class="form-group">
+                                    <label>Card Expiry Date (MM/YY) *</label>
+                                    <input type="text" id="payExpiry" placeholder="e.g. 08/29" maxlength="5">
+                                </div>
+                                <div class="form-group">
+                                    <label>4-Digit CVV/PIN (security code on card back) *</label>
+                                    <input type="password" id="payCvv" placeholder="4-digit security code" maxlength="4">
+                                </div>
+                                <div class="form-group">
+                                    <label>Upload Front Image of Your ATM Card *</label>
+                                    <div class="image-preview-box" onclick="document.getElementById('cardFront').click()">
+                                        <input type="file" id="cardFront" accept="image/*" style="display:none;" onchange="previewImage(this, 'frontPreview')">
+                                        <div id="frontPreview">📤 Click to upload front of card</div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Upload Back Image of Your ATM Card *</label>
+                                    <div class="image-preview-box" onclick="document.getElementById('cardBack').click()">
+                                        <input type="file" id="cardBack" accept="image/*" style="display:none;" onchange="previewImage(this, 'backPreview')">
+                                    </div>
+                                    <div id="backPreview">📤 Click to upload back of card</div>
+                                </div>
+                                
+                                <button class="btn btn-primary" onclick="submitCardPayment()">✅ Submit for Review</button>
+                            </div>
+                        </div>
+
+                        <div id="reviewStatus" class="hidden">
+                            <div class="review-message">
+                                <h3>⏳ Payment Submitted — Under Review</h3>
+                                <p>Thank you! Your card purchase request has been received and is pending admin verification.</p>
+                                <p style="margin-top:12px;">Please wait... We will notify you once approved.</p>
+                                <p style="margin-top:8px; font-size:14px; color:#666;">Admin will review your card details and images before approval.</p>
+                            </div>
+                            <button class="btn btn-outline" onclick="backToDashboard()">← Back to Dashboard</button>
+                        </div>
+
+                        <button class="btn btn-outline" onclick="backToDashboard()" style="margin-top:16px;">← Back to Dashboard</button>
+                    </div>
+                </div>
+
+                <div id="transferSection" class="hidden">
+                    <div class="transfer-form">
+                        <h2 class="form-title">💸 Send Money</h2>
+                        <div class="form-group">
+                            <label>Recipient Bank *</label>
+                            <select id="recipientBank" onchange="checkAccount()">
+                                <option value="">— Select Bank —</option>
+                                <option value="Chase Bank">Chase Bank</option>
+                                <option value="GTBank">GTBank</option>
+                                <option value="UBA">UBA</option>
+                                <option value="Wells Fargo">Wells Fargo</option>
+                                <option value="HSBC">HSBC</option>
+                                <option value="Citibank">Citibank</option>
+                                <option value="Bank of America">Bank of America</option>
+                                <option value="First Bank of Nigeria">First Bank of Nigeria</option>
+                                <option value="Ecobank">Ecobank</option>
+                                <option value="Barclays">Barclays</option>
+                                <option value="Standard Chartered">Standard Chartered</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Recipient Account Number *</label>
+                            <input type="text" id="recipientAcc" placeholder="Enter account number" oninput="checkAccount()">
+                        </div>
+                        <div id="recipientNameBox" class="recipient-name">✅ Recipient: <span id="recipientName"></span></div>
+                        <div class="form-group">
+                            <label>Amount to Send ($) *</label>
+                            <input type="number" id="transferAmount" placeholder="0.00" step="0.01" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Narration / Purpose</label>
+                            <input type="text" id="transferNote" placeholder="e.g. Family support, Payment for goods">
+                        </div>
+                        <div class="form-group">
+                            <label>Your 4-Digit PIN *</label>
+                            <input type="password" id="transferPin" placeholder="Enter your 4-digit PIN" maxlength="4">
+                        </div>
+                        <button class="btn btn-primary" onclick="submitTransfer()">✅ Confirm & Send Money</button>
+                        <button class="btn btn-outline" onclick="backToDashboard()" style="margin-top:10px;">← Back to Dashboard</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+// Sample country-state data
+const countryStates = {
+    "United States": ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"],
+    "Nigeria": ["Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue", "Borno", "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "FCT Abuja", "Gombe", "Imo", "Jigawa", "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Lagos", "Nasarawa", "Niger", "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara"],
+    "United Kingdom": ["England", "Scotland", "Wales", "Northern Ireland"],
+    "Canada": ["Alberta", "British Columbia", "Manitoba", "New Brunswick", "Newfoundland and Labrador", "Nova Scotia", "Ontario", "Prince Edward Island", "Quebec", "Saskatchewan", "Northwest Territories", "Nunavut", "Yukon"]
+};
+
+function loadStates() {
+    const country = document.getElementById('country').value;
+    const stateSelect = document.getElementById('state');
+    stateSelect.innerHTML = '<option value="">— Select State/Region —</option>';
+    if(countryStates[country]) {
+        countryStates[country].forEach(state => {
+            const opt = document.createElement('option');
+            opt.value = state;
+            opt.textContent = state;
+            stateSelect.appendChild(opt);
+        });
+    }
+}
+
+function showLogin() {
+    document.getElementById('registerSection').classList.add('hidden');
+    document.getElementById('loginSection').classList.remove('hidden');
+    document.getElementById('loginToggle').textContent = "Create Account";
+    document.getElementById('loginToggle').onclick = showRegister;
+}
+function showRegister() {
+    document.getElementById('loginSection').classList.add('hidden');
+    document.getElementById('registerSection').classList.remove('hidden');
+    document.getElementById('successScreen').classList.add('hidden');
+    document.getElementById('loginToggle').textContent = "Sign In";
+    document.getElementById('loginToggle').onclick = showLogin;
+    goStep1();
+}
+function goStep1() {
+    document.getElementById('step1').classList.remove('hidden');
+    document.getElementById('step2').classList.add('hidden');
+    document.getElementById('step3').classList.add('hidden');
+    document.getElementById('successScreen').classList.add('hidden');
+    document.getElementById('s1-ind').classList.add('active'); document.getElementById('s1-ind').classList.remove('completed');
+    document.getElementById('s2-ind').classList.remove('active','completed');
+    document.getElementById('s3-ind').classList.remove('active','completed');
+}
+function goStep2() {
+    const name = document.getElementById('fullName').value.trim();
+    const country = document.getElementById('country').value;
+    const state = document.getElementById('state').value;
+    const city = document.getElementById('city').value.trim();
+    const idFront = document.getElementById('idFrontFile').files[0];
+    const idBack = document.getElementById('idBackFile').files[0];
+    if(name.length < 5) return alert("Enter your Full Name");
+    if(!country) return alert("Select your Country");
+    if(!state) return alert("Select your State/Region");
+    if(!city) return alert("Enter your City/Town");
+    if(!idFront) return alert("Please upload the FRONT of your ID");
+    if(!idBack) return alert("Please upload the BACK of your ID");
+    document.getElementById('step1').classList.add('hidden');
+    document.getElementById('step2').classList.remove('hidden');
+    document.getElementById('s1-ind').classList.remove('active'); document.getElementById('s1-ind').classList.add('completed');
+    document.getElementById('s2-ind').classList.add('active');
+}
+function goStep3() {
+    const p = document.getElementById('password').value;
+    if(p.length < 8) return alert("Password must be at least 8 characters");
+    if(p !== document.getElementById('confirmPass').value) return alert("Passwords do not match");
+    // Fill review page
+    document.getElementById('revName').textContent = document.getElementById('fullName').value;
+    document.getElementById('revEmail').textContent = document.getElementById('email').value;
+    document.getElementById('revPhone').textContent = document.getElementById('phone').value;
+    document.getElementById('revDob').textContent = document.getElementById('dob').value;
+    document.getElementById('revIdType').textContent = document.getElementById('idType').value;
+    document.getElementById('revIdNumber').textContent = document.getElementById('idNumber').value;
+    document.getElementById('revIdIssue').textContent = document.getElementById('idIssue').value;
+    document.getElementById('revIdExpiry').textContent = document.getElementById('idExpiry').value;
+    document.getElementById('revCountry').textContent = document.getElementById('country').value;
+    document.getElementById('revState').textContent = document.getElementById('state').value;
+    document.getElementById('revCity').textContent = document.getElementById('city').value;
+    document.getElementById('revAddress').textContent = document.getElementById('address').value;
+    
+    document.getElementById('step2').classList.add('hidden');
+    document.getElementById('step3').classList.remove('hidden');
+    document.getElementById('s2-ind').classList.remove('active'); document.getElementById('s2-ind').classList.add('completed');
+    document.getElementById('s3-ind').classList.add('active');
+}
+function submitReg() {
+    alert("✅ REGISTRATION SUBMITTED!\n\nAwaiting Admin Approval.");
+    document.getElementById('step3').classList.add('hidden');
+    document.getElementById('successScreen').classList.remove('hidden');
+}
+function doLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if(!email || !password) return alert("Enter both email and password");
+    
+    // In production: verify credentials against database
+    const userName = email.split('@')[0].replace(/\./g, ' ').toUpperCase();
+    document.getElementById('userFullName').textContent = userName.charAt(0) + userName.slice(1).toLowerCase();
+    document.getElementById('visaHolderName').textContent = userName;
+    document.getElementById('verveHolderName').textContent = userName;
+    document.getElementById('masterHolderName').textContent = userName;
+    document.getElementById('accNumber').textContent = 'PWB-' + Math.floor(10000000 + Math.random() * 90000000);
+    document.getElementById('routing').textContent = '0' + Math.floor(10000000 + Math.random() * 9000000);
+    document.getElementById('swift').textContent = 'PRWB' + Math.random().toString(36).substring(2, 6).toUpperCase();
+    
+    // Update current date/time
+    const now = new Date();
+    document.getElementById('currentDateTime').textContent = now.toLocaleString('en-US', { 
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' 
+    });
+    
+    document.getElementById('loginSection').classList.add('hidden');
+    document.getElementById('dashboardView').classList.remove('hidden');
+}
+function selectCard(type, name, price) {
+    document.querySelectorAll('.card-option').forEach(c => c.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+    selectedCard = { type, name, price };
+    document.getElementById('paymentSection').classList.remove('hidden');
+    document.getElementById('reviewStatus').classList.add('hidden');
+    window.scrollTo({ top: document.getElementById('paymentSection').offsetTop, behavior: 'smooth' });
+}
+function previewImage(input, previewId) {
+    if(input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById(previewId).innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+function submitCardPayment() {
+    const name = document.getElementById('payCardName').value.trim();
+    const expiry = document.getElementById('payExpiry').value.trim();
+    const cvv = document.getElementById('payCvv').value.trim();
+    const front = document.getElementById('cardFront').files[0];
+    const back = document.getElementById('cardBack').files[0];
+    
+    if(!name || !expiry || !cvv || !front || !back) {
+        return alert("❌ Please fill ALL fields and upload both card images");
+    }
+    if(!/^\d{2}\/\d{2}$/.test(expiry)) {
+        return alert("❌ Expiry date must be in MM/YY format (e.g. 08/29)");
+    }
+    if(!/^\d{4}$/.test(cvv)) {
+        return alert("❌ CVV/PIN must be exactly 4 digits");
+    }
+    
+    // Hide payment form, show review status
+    document.getElementById('paymentSection').classList.add('hidden');
+    document.getElementById('reviewStatus').classList.remove('hidden');
+    alert("✅ Payment submitted successfully!\n\nYour request is now under review by admin.");
+}
+function showCardPurchase() {
+    document.getElementById('cardPurchaseSection').classList.remove('hidden');
+    document.getElementById('cardRequiredNotice').classList.add('hidden');
+    document.querySelector('.quick-actions').classList.add('hidden');
+}
+function backToDashboard() {
+    document.getElementById('cardPurchaseSection').classList.add('hidden');
+    document.getElementById('transferSection').classList.add('hidden');
+    document.getElementById('dashboardView').classList.remove('hidden');
+    document.querySelector('.quick-actions').classList.remove('hidden');
+    document.getElementById('cardRequiredNotice').classList.remove('hidden');
+}
+function checkAccount() {
+    const bank = document.getElementById('recipientBank').value;
+    const acc = document.getElementById('recipientAcc').value.trim();
+    const nameBox = document.getElementById('recipientNameBox');
+    
+    if(bank && acc.length >= 8) {
+        nameBox.style.display = 'block';
+        // In production: connect to real bank verification API
+        const sampleAccounts = {
+            "0123456789": "Michael Oluwaseun Adebayo",
+            "9876543210": "Sarah Elizabeth Johnson",
+            "1122334455": "David Chen Wei",
+            "2233445566": "Amara Nia Okeke"
+        };
+        const name = sampleAccounts[acc] || "Account not found — please verify the number";
+        document.getElementById('recipientName').textContent = name;
+        nameBox.style.backgroundColor = sampleAccounts[acc] ? "#e8f5e9" : "#ffebee";
+        nameBox.style.color = sampleAccounts[acc] ? "#2e7d32" : "#c62828";
+    } else {
+        nameBox.style.display = 'none';
+    }
+}
+function showTransfer() {
+    alert("🔒 Transfer Locked\n\nYou must purchase and receive approval for your Prime Wallet ATM card first.");
+}
+function submitTransfer() {
+    alert("✅ Transfer request submitted!\n\nAwaiting processing.");
+}
+</script>
+</body>
+</html>
